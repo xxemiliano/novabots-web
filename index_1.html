@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NovaBots — Discord Bot Development</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #070B12;
+      --bg2: #0D1520;
+      --blue: #1A73E8;
+      --blue-light: #42A5F5;
+      --white: #F0F4FF;
+      --gray: #8A9BB5;
+      --card: #0F1C2E;
+      --border: rgba(26,115,232,0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 60px;
+      background: rgba(7,11,18,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.4rem;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-logo span { color: var(--blue-light); }
+
+    .nav-links { display: flex; gap: 36px; list-style: none; }
+
+    .nav-links a {
+      color: var(--gray);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--white); }
+
+    .nav-cta {
+      background: var(--blue);
+      color: white;
+      padding: 10px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background 0.2s, transform 0.2s;
+    }
+
+    .nav-cta:hover { background: var(--blue-light); transform: translateY(-1px); }
+
+    /* HERO */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 120px 40px 80px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -200px; left: 50%;
+      transform: translateX(-50%);
+      width: 800px; height: 800px;
+      background: radial-gradient(circle, rgba(26,115,232,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(26,115,232,0.1);
+      border: 1px solid rgba(26,115,232,0.3);
+      border-radius: 100px;
+      padding: 6px 16px;
+      font-size: 0.8rem;
+      color: var(--blue-light);
+      margin-bottom: 28px;
+      animation: fadeUp 0.6s ease both;
+    }
+
+    .hero-badge span { width: 6px; height: 6px; background: var(--blue-light); border-radius: 50%; animation: pulse 2s infinite; }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 800;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 24px;
+      animation: fadeUp 0.6s 0.1s ease both;
+    }
+
+    .hero h1 .accent { color: var(--blue-light); }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--gray);
+      max-width: 520px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+      animation: fadeUp 0.6s 0.2s ease both;
+    }
+
+    .hero-btns {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+      animation: fadeUp 0.6s 0.3s ease both;
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      transition: all 0.2s;
+      border: none; cursor: pointer;
+    }
+
+    .btn-primary:hover { background: var(--blue-light); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(26,115,232,0.3); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--white);
+      padding: 14px 32px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1rem;
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover { border-color: var(--blue); color: var(--blue-light); }
+
+    /* STATS */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      padding: 60px 40px;
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
+
+    .stat { text-align: center; }
+
+    .stat-num {
+      font-family: 'Syne', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 800;
+      color: var(--white);
+    }
+
+    .stat-num span { color: var(--blue-light); }
+
+    .stat-label { color: var(--gray); font-size: 0.85rem; margin-top: 4px; }
+
+    /* SECTIONS */
+    section { padding: 100px 40px; max-width: 1100px; margin: 0 auto; }
+
+    .section-tag {
+      display: inline-block;
+      color: var(--blue-light);
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+
+    .section-sub {
+      color: var(--gray);
+      font-size: 1.05rem;
+      max-width: 500px;
+      line-height: 1.7;
+      margin-bottom: 60px;
+    }
+
+    /* SERVICIOS */
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .service-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .service-card:hover { border-color: var(--blue); transform: translateY(-4px); }
+
+    .service-icon {
+      width: 48px; height: 48px;
+      background: rgba(26,115,232,0.12);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.4rem;
+      margin-bottom: 20px;
+    }
+
+    .service-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .service-card p { color: var(--gray); font-size: 0.9rem; line-height: 1.6; }
+
+    /* PRECIOS */
+    #precios { background: var(--bg2); max-width: 100%; padding: 100px 40px; }
+
+    #precios .inner { max-width: 1100px; margin: 0 auto; }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 60px;
+    }
+
+    .pricing-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px;
+      position: relative;
+      transition: transform 0.2s;
+    }
+
+    .pricing-card:hover { transform: translateY(-4px); }
+
+    .pricing-card.featured {
+      border-color: var(--blue);
+      background: linear-gradient(135deg, #0F1C2E 0%, #0D1A30 100%);
+    }
+
+    .featured-badge {
+      position: absolute;
+      top: -12px; left: 50%;
+      transform: translateX(-50%);
+      background: var(--blue);
+      color: white;
+      padding: 4px 16px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .pricing-name {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--gray);
+    }
+
+    .pricing-price {
+      font-family: 'Syne', sans-serif;
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .pricing-price span { font-size: 1.2rem; color: var(--gray); }
+
+    .pricing-desc { color: var(--gray); font-size: 0.85rem; margin-bottom: 28px; }
+
+    .pricing-features { list-style: none; margin-bottom: 32px; }
+
+    .pricing-features li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+      color: var(--gray);
+    }
+
+    .pricing-features li:last-child { border-bottom: none; }
+
+    .pricing-features li::before { content: '✓'; color: var(--blue-light); font-weight: 700; }
+
+    /* PORTAFOLIO */
+    .portfolio-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .portfolio-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+
+    .portfolio-card:hover { border-color: var(--blue); transform: translateY(-4px); }
+
+    .portfolio-tag {
+      display: inline-block;
+      background: rgba(26,115,232,0.12);
+      color: var(--blue-light);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .portfolio-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .portfolio-card p { color: var(--gray); font-size: 0.88rem; line-height: 1.6; }
+
+    .portfolio-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .portfolio-feature {
+      background: rgba(255,255,255,0.05);
+      border-radius: 6px;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+
+    /* CONTACTO */
+    #contacto { background: var(--bg2); max-width: 100%; padding: 100px 40px; }
+
+    #contacto .inner { max-width: 1100px; margin: 0 auto; }
+
+    .contact-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 60px;
+      text-align: center;
+      max-width: 600px;
+      margin: 60px auto 0;
+    }
+
+    .contact-box h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .contact-box p { color: var(--gray); margin-bottom: 32px; line-height: 1.6; }
+
+    .contact-links { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 40px;
+      border-top: 1px solid var(--border);
+      color: var(--gray);
+      font-size: 0.85rem;
+    }
+
+    footer strong { color: var(--blue-light); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+
+    .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* MOBILE */
+    @media (max-width: 768px) {
+      nav { padding: 16px 24px; }
+      .nav-links { display: none; }
+      section { padding: 70px 24px; }
+      .stats { gap: 30px; }
+      .contact-box { padding: 36px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Nova<span>Bots</span></div>
+  <ul class="nav-links">
+    <li><a href="#servicios">Servicios</a></li>
+    <li><a href="#precios">Precios</a></li>
+    <li><a href="#portafolio">Portafolio</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+  <a href="https://discord.gg/z3tPZR5tgt" target="_blank" class="nav-cta">Unirse al servidor</a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div>
+    <div class="hero-badge"><span></span> Bots de Discord personalizados</div>
+    <h1>Automatizá tu<br/>servidor de <span class="accent">Discord</span></h1>
+    <p>Desarrollamos bots a medida para cualquier comunidad. Tickets, bienvenidas, moderación, niveles y más — todo configurado para vos.</p>
+    <div class="hero-btns">
+      <a href="https://discord.gg/z3tPZR5tgt" target="_blank" class="btn-primary">Pedir mi bot</a>
+      <a href="#precios" class="btn-secondary">Ver precios</a>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-num">3<span>+</span></div>
+    <div class="stat-label">Bots desarrollados</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">24<span>h</span></div>
+    <div class="stat-label">Tiempo de respuesta</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">$5<span>+</span></div>
+    <div class="stat-label">Precio desde</div>
+  </div>
+  <div class="stat">
+    <div class="stat-num">24<span>/7</span></div>
+    <div class="stat-label">Bots en línea</div>
+  </div>
+</div>
+
+<!-- SERVICIOS -->
+<section id="servicios">
+  <div class="fade-in">
+    <div class="section-tag">Servicios</div>
+    <h2 class="section-title">¿Qué puedo hacer<br/>por tu servidor?</h2>
+    <p class="section-sub">Cada bot es desarrollado a medida según lo que necesitás. Sin templates genéricos, sin limitaciones.</p>
+  </div>
+  <div class="services-grid fade-in">
+    <div class="service-card">
+      <div class="service-icon">🎫</div>
+      <h3>Sistema de Tickets</h3>
+      <p>Panel de soporte con categorías, canales privados, transcripciones automáticas y logs de actividad.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">👋</div>
+      <h3>Bienvenida Automática</h3>
+      <p>Mensaje de bienvenida con ping al usuario que se borra automáticamente. Sin bots de terceros.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔒</div>
+      <h3>Verificación con Captcha</h3>
+      <p>Sistema de verificación con código numérico para proteger tu servidor de bots y raids.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🏆</div>
+      <h3>Sistema de Niveles</h3>
+      <p>XP por mensajes, subida de nivel con notificación, roles automáticos y ranking de la comunidad.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🔨</div>
+      <h3>Moderación Completa</h3>
+      <p>Warn, mute, kick, ban, unban y purge con logs automáticos de cada acción del staff.</p>
+    </div>
+    <div class="service-card">
+      <div class="service-icon">🎉</div>
+      <h3>Sorteos y Sugerencias</h3>
+      <p>Sistema de sorteos con ganador automático y canal de sugerencias con votaciones por reacciones.</p>
+    </div>
+  </div>
+</section>
+
+<!-- PRECIOS -->
+<div id="precios">
+  <div class="inner">
+    <div class="fade-in">
+      <div class="section-tag">Precios</div>
+      <h2 class="section-title">Simple y transparente</h2>
+      <p class="section-sub">Sin sorpresas. Elegís el plan que necesitás y te entrego el bot funcionando.</p>
+    </div>
+    <div class="pricing-grid fade-in">
+      <div class="pricing-card">
+        <div class="pricing-name">🥉 Básico</div>
+        <div class="pricing-price">$5 <span>USD</span></div>
+        <div class="pricing-desc">Para servidores pequeños</div>
+        <ul class="pricing-features">
+          <li>Hasta 3 comandos</li>
+          <li>Entrega en 2 días</li>
+          <li>1 revisión</li>
+          <li>Instrucciones de uso</li>
+        </ul>
+        <a href="https://discord.gg/z3tPZR5tgt" target="_blank" class="btn-secondary" style="display:block;text-align:center;width:100%">Pedir ahora</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="featured-badge">⭐ Más popular</div>
+        <div class="pricing-name">🥈 Estándar</div>
+        <div class="pricing-price">$15 <span>USD</span></div>
+        <div class="pricing-desc">Para comunidades en crecimiento</div>
+        <ul class="pricing-features">
+          <li>Hasta 8 comandos</li>
+          <li>Tickets o registro incluido</li>
+          <li>Entrega en 4 días</li>
+          <li>2 revisiones</li>
+          <li>Soporte 3 días post-entrega</li>
+        </ul>
+        <a href="https://discord.gg/z3tPZR5tgt" target="_blank" class="btn-primary" style="display:block;text-align:center;width:100%">Pedir ahora</a>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-name">🥇 Premium</div>
+        <div class="pricing-price">$35 <span>USD</span></div>
+        <div class="pricing-desc">Sistema completo para tu servidor</div>
+        <ul class="pricing-features">
+          <li>Comandos ilimitados</li>
+          <li>Sistema completo (tickets + niveles + mod)</li>
+          <li>Base de datos incluida</li>
+          <li>Entrega en 7 días</li>
+          <li>3 revisiones</li>
+          <li>Soporte 7 días post-entrega</li>
+        </ul>
+        <a href="https://discord.gg/z3tPZR5tgt" target="_blank" class="btn-secondary" style="display:block;text-align:center;width:100%">Pedir ahora</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PORTAFOLIO -->
+<section id="portafolio">
+  <div class="fade-in">
+    <div class="section-tag">Portafolio</div>
+    <h2 class="section-title">Trabajos realizados</h2>
+    <p class="section-sub">Bots desarrollados y funcionando 24/7 en la nube.</p>
+  </div>
+  <div class="portfolio-grid fade-in">
+    <div class="portfolio-card">
+      <div class="portfolio-tag">GTA RP</div>
+      <h3>Bot de Empresa de Taxis</h3>
+      <p>Sistema completo para empresa de taxis en GTA RP Hub. Registro de conductores, estadísticas y soporte.</p>
+      <div class="portfolio-features">
+        <span class="portfolio-feature">Registro con formulario</span>
+        <span class="portfolio-feature">Panel de stats</span>
+        <span class="portfolio-feature">Sistema de tickets</span>
+        <span class="portfolio-feature">discord.py</span>
+      </div>
+    </div>
+    <div class="portfolio-card">
+      <div class="portfolio-tag">Soporte</div>
+      <h3>Bot de Tickets NovaBots</h3>
+      <p>Sistema de tickets con 4 categorías, modal de descripción, transcripciones por DM y logs automáticos.</p>
+      <div class="portfolio-features">
+        <span class="portfolio-feature">4 categorías</span>
+        <span class="portfolio-feature">Transcripciones</span>
+        <span class="portfolio-feature">Canal de logs</span>
+        <span class="portfolio-feature">discord.py</span>
+      </div>
+    </div>
+    <div class="portfolio-card">
+      <div class="portfolio-tag">Multifuncional</div>
+      <h3>Bot Principal NovaBots</h3>
+      <p>Bot completo con verificación captcha, niveles con XP, moderación, sorteos y sugerencias.</p>
+      <div class="portfolio-features">
+        <span class="portfolio-feature">Verificación captcha</span>
+        <span class="portfolio-feature">Sistema de niveles</span>
+        <span class="portfolio-feature">Moderación completa</span>
+        <span class="portfolio-feature">discord.py</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<div id="contacto">
+  <div class="inner">
+    <div class="fade-in">
+      <div class="section-tag">Contacto</div>
+      <h2 class="section-title">¿Listo para empezar?</h2>
+      <p class="section-sub">Entrá al servidor, describí lo que necesitás y te respondo en menos de 24 horas.</p>
+    </div>
+    <div class="contact-box fade-in">
+      <h3>Hablemos 👋</h3>
+      <p>Abrí un ticket en nuestro servidor de Discord con los detalles de tu bot y te armo un presupuesto sin compromiso.</p>
+      <div class="contact-links">
+        <a href="https://discord.gg/z3tPZR5tgt" target="_blank" class="btn-primary">Abrir ticket en Discord</a>
+        <a href="mailto:novabots.dev@gmail.com" class="btn-secondary">Enviar email</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2026 <strong>NovaBots</strong> — Discord Bot Development · Hecho por <strong>xx_emiliano_xx</strong></p>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) e.target.classList.add('visible');
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+</script>
+
+</body>
+</html>
